@@ -73,11 +73,22 @@ const ParentChildTable = ({
     return rootParents;
   };
 
+  const renderSortArrow = (columnKey: string) => {
+    if (sortedColumn === columnKey) {
+      return sortedOrder === "asc" ? "↑" : "↓";
+    }
+    return null;
+  };
 
   const config = {
     dataSource: sortedData(),
     columns: columns.map((column) => ({
       ...column,
+      title: (
+          <>
+            {column.title} {renderSortArrow(column.key)}
+          </>
+      ),
       onHeaderCell: () => ({
         onClick: () => handleSort(column),
       }),
