@@ -1,5 +1,6 @@
-import { Table } from "antd";
-import { IColumn, IUser } from "../../types";
+import {Table} from "antd";
+import {useState} from "react";
+import {IColumn, IUser, SortedColumn} from "../../types";
 
 const ParentChildTable = ({
   users,
@@ -8,8 +9,20 @@ const ParentChildTable = ({
   users: IUser[];
   columns: IColumn[];
 }) => {
+  const [sortedColumn, setSortedColumn] = useState<SortedColumn | null>(null);
+  const [sortedOrder, setSortedOrder] = useState<"asc" | "desc">("asc");
+
+  const handleSort = (column: IColumn) => {
+    if (["name", "balance", "isActive"].includes(column.key)) {
+      const isAsc = sortedColumn === column.key && sortedOrder === "asc";
+      const newSortedOrder = isAsc ? "desc" : "asc";
+      setSortedColumn(column.key as SortedColumn);
+      setSortedOrder(newSortedOrder)
+    }
+  };
+
   const getObjChildren = (data: IUser[]) => {
-    const children = data.reduce((obj: { [key: number]: IUser[] }, item) => {
+    return data.reduce((obj: { [key: number]: IUser[] }, item) => {
       item.key = item.id;
       const index = item.parentId;
 
@@ -17,8 +30,6 @@ const ParentChildTable = ({
 
       return obj;
     }, {});
-
-    return children;
   };
 
   const addChildren = (data: IUser[]) => {
@@ -34,26 +45,43 @@ const ParentChildTable = ({
     return objChildren;
   };
 
-  const getRootParents = (data: IUser[]) => {
+  const getTableData = (data: IUser[]) => {
     const objChildren = addChildren(data);
     const parentKeys = Object.keys(objChildren);
 
-    const rootParents = parentKeys.reduce((arr: IUser[], key) => {
+    return parentKeys.reduce((arr: IUser[], key) => {
       return arr.concat(objChildren[+key]);
     }, []);
+  };
+
+  const sortedData = () => {
+    const rootParents = getTableData(users);
+
+    if (sortedColumn) {
+      return rootParents.sort((a, b) => {
+        const aValue = a[sortedColumn as SortedColumn];
+        const bValue = b[sortedColumn as SortedColumn];
+
+        if (sortedOrder === "asc") {
+          return aValue > bValue ? 1 : -1;
+        } else {
+          return bValue > aValue ? 1 : -1;
+        }
+      });
+    }
 
     return rootParents;
   };
 
-  const getTableData = (data: IUser[]) => {
-    const rootParents = getRootParents(data);
-
-    return rootParents;
-  };
 
   const config = {
-    dataSource: getTableData(users),
-    columns: columns,
+    dataSource: sortedData(),
+    columns: columns.map((column) => ({
+      ...column,
+      onHeaderCell: () => ({
+        onClick: () => handleSort(column),
+      }),
+    })),
   };
 
   return <Table {...config}></Table>;

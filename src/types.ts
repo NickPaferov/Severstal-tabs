@@ -14,3 +14,5 @@ export interface IColumn {
   dataIndex: string;
   key: string;
 }
+
+export type SortedColumn = "name" | "balance" | "isActive"
