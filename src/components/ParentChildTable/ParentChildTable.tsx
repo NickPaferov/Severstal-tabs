@@ -1,5 +1,6 @@
 import { Table } from "antd";
 import { useState } from "react";
+import { useSorting } from "../../hooks/useSorting";
 import { IColumn, IUser, SortedColumn } from "../../types";
 import SidePanel from "../SidePanel/SidePanel";
 
@@ -10,24 +11,14 @@ const ParentChildTable = ({
   users: IUser[];
   columns: IColumn[];
 }) => {
-  const [sortedColumn, setSortedColumn] = useState<SortedColumn | null>(null);
-  const [sortedOrder, setSortedOrder] = useState<"asc" | "desc">("asc");
+  const { sortedColumn, sortedOrder, handleSort } = useSorting();
   const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
 
-  const handleSort = (column: IColumn) => {
-    if (["name", "balance", "isActive"].includes(column.key)) {
-      const isAsc = sortedColumn === column.key && sortedOrder === "asc";
-      const newSortedOrder = isAsc ? "desc" : "asc";
-      setSortedColumn(column.key as SortedColumn);
-      setSortedOrder(newSortedOrder);
-    }
-  };
-
   const getObjChildren = (data: IUser[]) => {
     return data.reduce((obj: { [key: number]: IUser[] }, item) => {
-      item.key = item.id;
-      const index = item.parentId;
+      const newItem = { ...item, key: item.id };
+      const index = newItem.parentId;
 
       !obj[index] ? (obj[index] = [item]) : obj[index].push(item);
 
@@ -37,15 +28,15 @@ const ParentChildTable = ({
 
   const addChildren = (data: IUser[]) => {
     const objChildren = getObjChildren(data);
-    data.forEach((row) => {
+    return data.map((row) => {
       const indexRow = row.id;
 
       if (objChildren[indexRow]) {
-        row.children = objChildren[indexRow];
-        delete objChildren[indexRow];
+        return { ...row, children: objChildren[indexRow] };
       }
+
+      return row;
     });
-    return objChildren;
   };
 
   const getTableData = (data: IUser[]) => {
@@ -53,7 +44,7 @@ const ParentChildTable = ({
     const parentKeys = Object.keys(objChildren);
 
     return parentKeys.reduce((arr: IUser[], key) => {
-      return arr.concat(objChildren[+key]);
+      return arr.concat(objChildren[parseInt(key, 10)]);
     }, []);
   };
 
