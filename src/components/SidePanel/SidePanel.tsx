@@ -1,4 +1,4 @@
-import { Drawer } from "antd";
+import { Drawer, Tag } from "antd";
 import { IUser } from "../../types";
 import { Space, Typography } from "antd";
 
@@ -42,7 +42,9 @@ const SidePanel = ({
           </Space>
           <Space>
             <Text type="secondary">isActive: </Text>
-            {`${currentUser.isActive}`}
+            <Tag color={currentUser.isActive ? "green" : "red"}>
+              {currentUser.isActive ? "TRUE" : "FALSE"}
+            </Tag>
           </Space>
         </Space>
       )}
