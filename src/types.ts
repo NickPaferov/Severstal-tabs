@@ -15,4 +15,4 @@ export interface IColumn {
   key: string;
 }
 
-export type SortedColumn = "name" | "balance" | "isActive"
+export type SortedColumn = "name" | "balance" | "isActive";

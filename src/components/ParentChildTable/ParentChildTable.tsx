@@ -1,6 +1,7 @@
-import {Table} from "antd";
-import {useState} from "react";
-import {IColumn, IUser, SortedColumn} from "../../types";
+import { Table } from "antd";
+import { useState } from "react";
+import { IColumn, IUser, SortedColumn } from "../../types";
+import SidePanel from "../SidePanel/SidePanel";
 
 const ParentChildTable = ({
   users,
@@ -11,13 +12,15 @@ const ParentChildTable = ({
 }) => {
   const [sortedColumn, setSortedColumn] = useState<SortedColumn | null>(null);
   const [sortedOrder, setSortedOrder] = useState<"asc" | "desc">("asc");
+  const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
+  const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
 
   const handleSort = (column: IColumn) => {
     if (["name", "balance", "isActive"].includes(column.key)) {
       const isAsc = sortedColumn === column.key && sortedOrder === "asc";
       const newSortedOrder = isAsc ? "desc" : "asc";
       setSortedColumn(column.key as SortedColumn);
-      setSortedOrder(newSortedOrder)
+      setSortedOrder(newSortedOrder);
     }
   };
 
@@ -80,22 +83,43 @@ const ParentChildTable = ({
     return null;
   };
 
+  const handleOnRow = (user: IUser) => {
+    setSelectedUser(user);
+    setIsSidePanelOpen(true);
+  };
+
+  const closeSidePanel = () => {
+    setIsSidePanelOpen(false);
+  };
+
   const config = {
     dataSource: sortedData(),
     columns: columns.map((column) => ({
       ...column,
       title: (
-          <>
-            {column.title} {renderSortArrow(column.key)}
-          </>
+        <>
+          {column.title} {renderSortArrow(column.key)}
+        </>
       ),
       onHeaderCell: () => ({
         onClick: () => handleSort(column),
       }),
     })),
+    onRow: (record: IUser) => ({
+      onClick: () => handleOnRow(record),
+    }),
   };
 
-  return <Table {...config}></Table>;
+  return (
+    <>
+      <Table {...config}></Table>
+      <SidePanel
+        currentUser={selectedUser}
+        drawerVisible={isSidePanelOpen}
+        closeSidePanel={closeSidePanel}
+      />
+    </>
+  );
 };
 
 export default ParentChildTable;
