@@ -28,15 +28,15 @@ const ParentChildTable = ({
 
   const addChildren = (data: IUser[]) => {
     const objChildren = getObjChildren(data);
-    return data.map((row) => {
+    data.forEach((row) => {
       const indexRow = row.id;
 
       if (objChildren[indexRow]) {
-        return { ...row, children: objChildren[indexRow] };
+        row.children = objChildren[indexRow];
+        delete objChildren[indexRow];
       }
-
-      return row;
     });
+    return objChildren;
   };
 
   const getTableData = (data: IUser[]) => {
