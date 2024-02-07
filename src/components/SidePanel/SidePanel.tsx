@@ -29,19 +29,19 @@ const SidePanel = ({
       {currentUser && (
         <Space direction="vertical">
           <Space>
-            <Text type="secondary">Name: </Text>
-            {currentUser.name}
+            <Text strong>Name: </Text>
+            <Text>{currentUser.name}</Text>
           </Space>
           <Space>
-            <Text type="secondary">Email: </Text>
-            {currentUser.email}
+            <Text strong>email: </Text>
+            <Text>{currentUser.email}</Text>
           </Space>
           <Space>
-            <Text type="secondary">Balance: </Text>
-            {currentUser.balance}
+            <Text strong>balance: </Text>
+            <Text>{currentUser.balance}</Text>
           </Space>
           <Space>
-            <Text type="secondary">isActive: </Text>
+            <Text strong>isActive: </Text>
             <Tag color={currentUser.isActive ? "green" : "red"}>
               {currentUser.isActive ? "TRUE" : "FALSE"}
             </Tag>
